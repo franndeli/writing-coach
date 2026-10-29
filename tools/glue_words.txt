@@ -1,0 +1,55 @@
+# Glue words the agent may add when restructuring (one per line, lowercase).
+# Anything not here, and not in my own text, is flagged by tools/check_words.py.
+# Keep this list SHORT. Every word added here is a word the agent can put in my mouth.
+
+# English
+a
+an
+the
+and
+but
+or
+so
+because
+then
+also
+yet
+that
+which
+this
+these
+it
+is
+are
+was
+of
+to
+in
+on
+for
+with
+not
+
+# Spanish
+y
+e
+o
+u
+pero
+porque
+entonces
+también
+que
+el
+la
+los
+las
+un
+una
+de
+del
+en
+con
+para
+no
+es

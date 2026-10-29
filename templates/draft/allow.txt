@@ -1,0 +1,2 @@
+# Words or phrases I've approved as mine even though they aren't in raw.md / interview.md,
+# e.g. grammar fixes the agent proposed and I accepted. One per line.
