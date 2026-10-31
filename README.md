@@ -8,9 +8,12 @@ Turn messy voice notes into LinkedIn posts and blog articles that still sound li
 
 [![CI](https://github.com/franndeli/writing-coach/actions/workflows/ci.yml/badge.svg)](https://github.com/franndeli/writing-coach/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/franndeli/writing-coach?sort=semver)](https://github.com/franndeli/writing-coach/releases)
+[![npm version](https://img.shields.io/npm/v/writing-coach?logo=npm)](https://www.npmjs.com/package/writing-coach)
+[![npm downloads](https://img.shields.io/npm/dm/writing-coach)](https://www.npmjs.com/package/writing-coach)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-Claude%20Code%20·%20Codex%20·%20Cursor%20·%20Pi-8A2BE2)](https://agentskills.io)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B%20·%20no%20deps-3776AB)](#install)
+[![Pi package](https://img.shields.io/badge/pi-package-8A2BE2)](https://pi.dev/packages/writing-coach)
 
 [Install](#install) · [Quick start](#quick-start) · [Example](examples/README.md) · [How it works](#how-it-works) · [FAQ](#faq)
 
@@ -94,7 +97,7 @@ the restructure with its gap, and the feedback that became a rule.
 | Agent | Command |
 |---|---|
 | **Claude Code** (plugin, adds `/writing-coach:*` commands) | `/plugin install writing-coach --marketplace franndeli/writing-coach` |
-| **Pi** (package, adds `/journal`, `/review-journal`, …) | `pi install git:github.com/franndeli/writing-coach` |
+| **Pi** (package, adds `/journal`, `/review-journal`, …) | `pi install npm:writing-coach` |
 | **Codex, Cursor, OpenCode, Gemini CLI, …** ([skills CLI](https://skills.sh)) | `npx skills add franndeli/writing-coach -g` |
 | **Manual** | Copy `skills/writing-coach/` into your agent's skills folder (e.g. `~/.claude/skills/`, `~/.codex/skills/`) |
 
