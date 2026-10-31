@@ -24,10 +24,24 @@
     "commands/",
     ".claude-plugin/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "!**/__pycache__/**",
+    "!**/*.pyc"
   ],
   "pi": {
-    "skills": ["./skills"],
-    "prompts": ["./prompts/*.md"]
+    "skills": [
+      "./skills"
+    ],
+    "prompts": [
+      "./prompts/*.md"
+    ]
+  },
+  "scripts": {
+    "test": "python3 -m unittest discover -s tests",
+    "prepublishOnly": "python3 -m unittest discover -s tests"
+  },
+  "homepage": "https://github.com/franndeli/writing-coach#readme",
+  "bugs": {
+    "url": "https://github.com/franndeli/writing-coach/issues"
   }
 }
