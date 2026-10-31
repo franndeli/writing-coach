@@ -42,7 +42,7 @@ def load_glue(path: Path = GLUE_FILE) -> set[str]:
     if not path.exists():
         return set()
     words = set()
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip().lower()
         if line and not line.startswith("#"):
             words.add(line)
@@ -81,7 +81,7 @@ def clauses(text: str) -> list[list[str]]:
 
 
 def _source_text(path: Path, kind: str) -> str:
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
     lines = text.splitlines()
     if kind == "interview":
@@ -209,6 +209,15 @@ def extract_section(text: str, heading: str) -> str | None:
     return "\n".join(out) if found else None
 
 
+def _utf8_stdout() -> None:
+    """Windows consoles default to a legacy code page; force UTF-8 so non-ASCII output never crashes."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Verify a text uses only my words.")
     ap.add_argument("file", type=Path, help="text to check, e.g. drafts/<slug>/final-linkedin.md")
@@ -219,6 +228,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--section", help="only check the markdown section with this heading, e.g. Text")
     ap.add_argument("--min-run", type=int, default=MIN_RUN, help=f"verbatim run length that always counts (default {MIN_RUN})")
     args = ap.parse_args(argv)
+    _utf8_stdout()
 
     if not args.file.exists():
         print(f"error: {args.file} not found", file=sys.stderr)
@@ -234,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
     glue_file = args.glue or (Path("glue_words.txt") if Path("glue_words.txt").exists() else GLUE_FILE)
     glue = load_glue(glue_file)
     src = build_source(collect_sources(draft_dir, args.source), glue)
-    text = args.file.read_text(encoding="utf-8")
+    text = args.file.read_text(encoding="utf-8-sig")
     if args.section:
         text = extract_section(text, args.section)
         if text is None:

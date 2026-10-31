@@ -23,11 +23,11 @@ class InitWorkspaceTest(unittest.TestCase):
     def test_never_overwrites_existing_data(self):
         with tempfile.TemporaryDirectory() as d:
             ws = Path(d)
-            (ws / "STYLE.md").write_text("my real style")
+            (ws / "STYLE.md").write_text("my real style", encoding="utf-8")
             (ws / "samples" / "linkedin").mkdir(parents=True)
-            (ws / "samples" / "linkedin" / "post.md").write_text("mine")
+            (ws / "samples" / "linkedin" / "post.md").write_text("mine", encoding="utf-8")
             added, skipped = iw.init_workspace(ws, git=False)
-            self.assertEqual((ws / "STYLE.md").read_text(), "my real style")
+            self.assertEqual((ws / "STYLE.md").read_text(encoding="utf-8"), "my real style")
             self.assertIn(Path("STYLE.md"), skipped)
             self.assertFalse((ws / "samples" / "linkedin" / ".gitkeep").exists())
 
@@ -47,9 +47,9 @@ class TemplateIsCleanTest(unittest.TestCase):
         self.assertEqual(journal_files, ["candidates.md", "rollups"])
 
     def test_profiles_are_unfilled(self):
-        self.assertIn("Not generated yet", (TEMPLATE / "STYLE.md").read_text())
-        self.assertIn("Not set yet", (TEMPLATE / "GOALS.md").read_text())
-        prefs = (TEMPLATE / "feedback" / "preferences.md").read_text()
+        self.assertIn("Not generated yet", (TEMPLATE / "STYLE.md").read_text(encoding="utf-8"))
+        self.assertIn("Not set yet", (TEMPLATE / "GOALS.md").read_text(encoding="utf-8"))
+        prefs = (TEMPLATE / "feedback" / "preferences.md").read_text(encoding="utf-8")
         table_rows = [l for l in prefs.splitlines() if l.startswith("|") and not l.startswith("|---") and "Key" not in l]
         self.assertEqual(table_rows, [])
 

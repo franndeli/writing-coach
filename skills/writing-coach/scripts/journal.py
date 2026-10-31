@@ -3,7 +3,9 @@
 
 Commands:
   path [--date D]                              print (and create) the entry file for a day (default today)
-  add  [--date D] [--time HH:MM]               append stdin VERBATIM under a "## HH:MM" heading
+  add  [--date D] [--time HH:MM] [--file F [--delete]]
+                                               append text VERBATIM under a "## HH:MM" heading.
+                                               Text comes from --file (recommended, works on every OS) or stdin.
   tag  [--date D] [--themes a,b] [--people x] [--projects y]
                                                merge tags into the entry's frontmatter (body untouched)
   themes [--since 30d|YYYY-MM-DD] [--month YYYY-MM]
@@ -23,6 +25,15 @@ from pathlib import Path
 
 LIST_KEYS = ("themes", "people", "projects")
 FM_RE = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
+
+
+def _utf8_stdout() -> None:
+    """Windows consoles default to a legacy code page; force UTF-8 so non-ASCII output never crashes."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
 
 
 def find_workspace(start: Path | None = None) -> Path:
@@ -49,7 +60,7 @@ def ensure_entry(ws: Path, d: date) -> Path:
     p = entry_path(ws, d)
     if not p.exists():
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(new_entry_text(d), encoding="utf-8")
+        p.write_bytes(new_entry_text(d).encode("utf-8"))
     return p
 
 
@@ -84,7 +95,7 @@ def cmd_add(ws: Path, d: date, time: str | None, text: str) -> Path:
     stamp = time or datetime.now().strftime("%H:%M")
     current = p.read_text(encoding="utf-8")
     sep = "" if current.endswith("\n\n") else ("\n" if current.endswith("\n") else "\n\n")
-    with p.open("a", encoding="utf-8") as f:
+    with p.open("a", encoding="utf-8", newline="\n") as f:
         f.write(f"{sep}## {stamp}\n\n{text.rstrip(chr(10))}\n")
     return p
 
@@ -102,7 +113,7 @@ def cmd_tag(ws: Path, d: date, tags: dict[str, list[str]]) -> Path:
             if t and t not in existing:
                 existing.append(t)
         meta[key] = existing
-    p.write_text(write_frontmatter(meta, body), encoding="utf-8")
+    p.write_bytes(write_frontmatter(meta, body).encode("utf-8"))
     return p
 
 
@@ -161,6 +172,8 @@ def main(argv: list[str] | None = None) -> int:
     p_add = sub.add_parser("add")
     p_add.add_argument("--date")
     p_add.add_argument("--time")
+    p_add.add_argument("--file", type=Path, help="read the dictation from this file (UTF-8)")
+    p_add.add_argument("--delete", action="store_true", help="delete --file after a successful save")
     p_tag = sub.add_parser("tag")
     p_tag.add_argument("--date")
     for k in LIST_KEYS:
@@ -171,17 +184,25 @@ def main(argv: list[str] | None = None) -> int:
     p_c = sub.add_parser("candidates")
     p_c.add_argument("--status")
     args = ap.parse_args(argv)
+    _utf8_stdout()
 
     ws = find_workspace()
     if args.cmd == "path":
-        print(ensure_entry(ws, parse_date(args.date)).relative_to(ws))
+        print(ensure_entry(ws, parse_date(args.date)).relative_to(ws).as_posix())
     elif args.cmd == "add":
-        p = cmd_add(ws, parse_date(args.date), args.time, sys.stdin.read())
-        print(f"saved: {p.relative_to(ws)}")
+        if args.file:
+            text = args.file.read_text(encoding="utf-8-sig")
+        else:
+            buf = getattr(sys.stdin, "buffer", None)
+            text = buf.read().decode("utf-8-sig") if buf else sys.stdin.read()
+        p = cmd_add(ws, parse_date(args.date), args.time, text)
+        if args.file and args.delete:
+            args.file.unlink()
+        print(f"saved: {p.relative_to(ws).as_posix()}")
     elif args.cmd == "tag":
         tags = {k: [t for t in getattr(args, k).split(",") if t.strip()] for k in LIST_KEYS}
         p = cmd_tag(ws, parse_date(args.date), tags)
-        print(f"tagged: {p.relative_to(ws)}")
+        print(f"tagged: {p.relative_to(ws).as_posix()}")
     elif args.cmd == "themes":
         rows = theme_counts(ws, parse_since(args.since), args.month)
         if not rows:

@@ -67,8 +67,8 @@ class CheckWordsTest(unittest.TestCase):
     def test_interview_questions_not_counted_but_answers_are(self):
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
-            (d / "raw.md").write_text("Meetings kill focus.\n")
-            (d / "interview.md").write_text("> Q1: What is the hidden cost nobody measures?\n\nThe cost is attention.\n")
+            (d / "raw.md").write_text("Meetings kill focus.\n", encoding="utf-8")
+            (d / "interview.md").write_text("> Q1: What is the hidden cost nobody measures?\n\nThe cost is attention.\n", encoding="utf-8")
             src = cw.build_source(cw.collect_sources(d, []), GLUE)
             ok = cw.check_text("Meetings kill focus. The cost is attention.", src, GLUE)
             bad = cw.check_text("What is the hidden cost nobody measures?", src, GLUE)
@@ -78,20 +78,20 @@ class CheckWordsTest(unittest.TestCase):
     def test_allow_txt_counts_as_mine(self):
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
-            (d / "raw.md").write_text("I quits my job.\n")
-            (d / "allow.txt").write_text("# approved fixes\nI quit my job\n")
+            (d / "raw.md").write_text("I quits my job.\n", encoding="utf-8")
+            (d / "allow.txt").write_text("# approved fixes\nI quit my job\n", encoding="utf-8")
             src = cw.build_source(cw.collect_sources(d, []), GLUE)
             self.assertEqual(cw.check_text("I quit my job.", src, GLUE)[2], 0)
 
     def test_section_only_checks_text(self):
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
-            (d / "raw.md").write_text(RAW)
+            (d / "raw.md").write_text(RAW, encoding="utf-8")
             (d / "structure-linkedin.md").write_text(
                 "## Outline\nHook first because invented rationale.\n\n"
                 "## Text\nDeep work dies in fragments.\n\n"
                 "## Suggestions\n1. Lead with the cost.\n"
-            )
+            , encoding="utf-8")
             f = str(d / "structure-linkedin.md")
             self.assertEqual(cw.main([f, "--section", "Text"]), 0)
             self.assertEqual(cw.main([f]), 1)
@@ -101,22 +101,22 @@ class CheckWordsTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
             entry = d / "2026-01-05.md"
-            entry.write_text("---\nthemes: [work]\n---\n\n## 09:10\nso today i realised meetings are basically where focus goes to die\n")
+            entry.write_text("---\nthemes: [work]\n---\n\n## 09:10\nso today i realised meetings are basically where focus goes to die\n", encoding="utf-8")
             draft = d / "drafts" / "focus"
             draft.mkdir(parents=True)
-            (draft / "raw.md").write_text("<!-- from journal -->\nso today i realised meetings are basically where focus goes to die\n")
+            (draft / "raw.md").write_text("<!-- from journal -->\nso today i realised meetings are basically where focus goes to die\n", encoding="utf-8")
             self.assertEqual(cw.main([str(draft / "raw.md"), "--sources-only", "--source", str(entry)]), 0)
-            (draft / "raw.md").write_text("Today I realised meetings are where concentration goes to die.\n")
+            (draft / "raw.md").write_text("Today I realised meetings are where concentration goes to die.\n", encoding="utf-8")
             self.assertEqual(cw.main([str(draft / "raw.md"), "--sources-only", "--source", str(entry)]), 1)
             self.assertEqual(cw.main([str(draft / "raw.md"), "--sources-only"]), 2)
 
     def test_cli_exit_codes(self):
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
-            (d / "raw.md").write_text(RAW)
-            (d / "final.md").write_text("Deep work dies in fragments.\n")
+            (d / "raw.md").write_text(RAW, encoding="utf-8")
+            (d / "final.md").write_text("Deep work dies in fragments.\n", encoding="utf-8")
             self.assertEqual(cw.main([str(d / "final.md")]), 0)
-            (d / "final.md").write_text("Deep work truly dies in tiny fragments.\n")
+            (d / "final.md").write_text("Deep work truly dies in tiny fragments.\n", encoding="utf-8")
             self.assertEqual(cw.main([str(d / "final.md")]), 1)
 
 

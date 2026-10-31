@@ -21,6 +21,8 @@
   "files": [
     "skills/",
     "prompts/",
+    "commands/",
+    ".claude-plugin/",
     "README.md",
     "LICENSE"
   ],

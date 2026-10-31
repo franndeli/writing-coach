@@ -31,13 +31,13 @@ Never load the whole journal into context.
 
 1. Take the dictation exactly as given. Voice transcripts are messy (no punctuation, misheard words, filler).
    **Don't fix anything**: no typos, no punctuation, no removed filler.
-2. Append it with a quoted heredoc so nothing gets altered:
+2. Write the dictation, exactly as given, to a temporary file using your **file-write tool** (not a shell
+   command, because shells mangle quotes, `$` and backticks). Then append it:
    ```sh
-   python3 <skill>/scripts/journal.py add <<'ENTRY'
-   <dictation exactly as given>
-   ENTRY
+   python3 <skill>/scripts/journal.py add --file <tmp-file> --delete
    ```
-   This creates today's file if needed and adds a `## HH:MM` heading. Use `--date YYYY-MM-DD` for a past day.
+   This creates today's file if needed, adds a `## HH:MM` heading, and deletes the temp file. Use `--date YYYY-MM-DD`
+   for a past day. Never edit the entry body afterwards.
 3. Tag it. Run `J themes` to see existing theme names and **reuse them**. Only add a new theme when nothing fits.
    Then run `J tag --themes a,b --people x --projects y` (add `--date` if it isn't today). Keep themes short, kebab-case, 1–4 per entry.
 4. Quietly note candidates. If a passage holds a concrete story, a lesson, a strong opinion, a surprising
@@ -56,7 +56,8 @@ recurring threads across weeks, and any candidates from that month. Keep it unde
 
 Input: a period (default: since `Last review` in `candidates.md`, otherwise the last 30 days).
 
-1. If `GOALS.md` isn't set, say so and run Goals first. Read `GOALS.md` and the `STYLE.md` summary.
+1. Run `python3 <skill>/scripts/doctor.py`. On a FAIL, stop and fix privacy first. If `GOALS.md` isn't set, say so
+   and run Goals first. Read `GOALS.md` and the `STYLE.md` summary.
 2. Gather small context first: `J candidates --status open`, `J themes --since <period>`, and digests that overlap the period.
 3. Look for patterns: a theme that appears in ≥ 3 entries in the period is a signal. Use `rg` to open those entries
    and look for candidates that capture missed. Add them to `candidates.md`.

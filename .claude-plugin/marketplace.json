@@ -1,0 +1,15 @@
+{
+  "name": "writing-coach",
+  "description": "Writing Coach: restructure your ideas, never your words.",
+  "owner": {
+    "name": "Francisco José Delicado González",
+    "url": "https://github.com/franndeli"
+  },
+  "plugins": [
+    {
+      "name": "writing-coach",
+      "source": "./",
+      "description": "Restructures your ideas into LinkedIn posts and blog articles. It changes the structure, never your words."
+    }
+  ]
+}

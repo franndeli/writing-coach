@@ -1,0 +1,14 @@
+{
+  "name": "writing-coach",
+  "displayName": "Writing Coach",
+  "version": "0.1.0",
+  "description": "Restructures your ideas into LinkedIn posts and blog articles. It changes the structure, never your words. Includes a voice-dictated journal it mines critically for post ideas.",
+  "author": {
+    "name": "Francisco José Delicado González",
+    "url": "https://github.com/franndeli"
+  },
+  "homepage": "https://github.com/franndeli/writing-coach",
+  "repository": "https://github.com/franndeli/writing-coach",
+  "license": "MIT",
+  "keywords": ["writing", "linkedin", "blogging", "journal", "agent-skills"]
+}

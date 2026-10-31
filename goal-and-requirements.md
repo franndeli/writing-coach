@@ -50,6 +50,7 @@ in daily experience because nobody records it or checks it against what the writ
 ## Capabilities
 
 - **Init**: create or complete a private workspace from the template, without ever overwriting existing files.
+- **Doctor**: check workspace health and privacy. It fails when a git remote is a public GitHub repo, and runs after init and before every journal review.
 - **Goals**: interview the writer into `GOALS.md` (why they post, audience, topics they post about and never post about, per-platform cadence).
 - **Capture**: save a dictation verbatim to the day's journal entry, tag its themes, and quietly note candidate quotes.
 - **Review journal**: on request, rule candidates and recurring themes IN or OUT against `GOALS.md`, with verbatim quotes and reasons.
@@ -61,6 +62,7 @@ in daily experience because nobody records it or checks it against what the writ
 - **Verify**: `check_words.py` flags any word sequence the writer didn't write.
 - **Learn**: log accept/reject decisions with scope, and propose `STYLE.md` updates from accumulated preferences.
 - **Publish**: copy approved finals into `samples/` as new style evidence.
+- **Worked example**: `examples/alex/`, a fictional writer covering the whole loop, kept honest by tests that run the same checks the coach enforces.
 
 ## Non-Goals
 
@@ -72,13 +74,21 @@ in daily experience because nobody records it or checks it against what the writ
 ## Tech Notes
 
 - **Distribution**: `skills/writing-coach/` follows the Agent Skills format (`SKILL.md` router, `references/`,
-  `scripts/`, `assets/workspace/`). Install with `npx skills add franndeli/writing-coach` (any agent), `pi install
-  git:github.com/franndeli/writing-coach` (adds the `prompts/` slash commands via the `pi` key in `package.json`),
-  or a manual copy.
+  `scripts/`, `assets/workspace/`). Install paths:
+  - `npx skills add franndeli/writing-coach` (any agent);
+  - the Claude Code plugin: the repo root is both the plugin and its own marketplace (`.claude-plugin/`, source `./`), and `commands/` use `$ARGUMENTS`;
+  - `pi install git:github.com/franndeli/writing-coach`, which loads `prompts/` through the `pi` key in `package.json`;
+  - a manual copy.
+  Both command sets only point at skill workflows, and a test keeps them in sync. One version string lives in
+  package.json, plugin.json, the SKILL.md `metadata.version` and the CHANGELOG, also enforced by a test.
 - **Workspace**: found by its `.writing-coach` marker. Its `AGENTS.md` (plus a `CLAUDE.md` that imports it) tells
   any agent to load the skill. Created by `scripts/init_workspace.py`, default `~/writing`, local git.
-- **Scripts**: Python 3 with no dependencies. `check_words.py` (verbatim-run plus clause matching, glue whitelist,
-  `allow.txt`, `--section`, `--sources-only`), `journal.py` (append-only `add`, `tag`, `themes`, `candidates`),
-  `init_workspace.py`.
-- Pi slash commands never take a dictation as an argument, because Pi's shell-like argument parsing would strip quotes and apostrophes.
-- MIT licensed. Tests: `python3 -m unittest discover -s tests`.
+- **Scripts**: Python 3.9+ with no dependencies, on macOS, Linux and Windows (CI covers all three). `check_words.py` (verbatim-run plus clause
+  matching, glue whitelist, `allow.txt`, `--section`, `--sources-only`), `journal.py` (append-only `add`, `tag`, `themes`,
+  `candidates`), `init_workspace.py`, and `doctor.py` (GitHub visibility via the unauthenticated API: 200 means public, 404 means private or missing).
+  Scripts force UTF-8 output, accept a BOM, and write LF.
+- **Capture goes through a file**: the agent writes the dictation with its own file-write tool, then runs `journal.py add --file
+  <tmp> --delete`. This keeps the text exact on every OS. Heredocs were rejected because they break in PowerShell and when a
+  dictation contains the delimiter line. Pi slash commands never take a dictation as an argument, because Pi's shell-like
+  argument parsing would strip quotes and apostrophes. Claude Code passes `$ARGUMENTS` through unparsed, so inline dictation works there.
+- MIT licensed. Tests: `python3 -m unittest discover -s tests`. Contributor rules are in CONTRIBUTING.md.

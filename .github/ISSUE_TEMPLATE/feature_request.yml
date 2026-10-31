@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest an improvement to the coach or its workflows
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+  - type: checkboxes
+    id: rule
+    attributes:
+      label: Core rule
+      options:
+        - label: This keeps "the words are always the writer's" intact.
+          required: true

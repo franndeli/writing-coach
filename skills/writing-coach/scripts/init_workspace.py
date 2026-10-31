@@ -44,8 +44,18 @@ def init_workspace(target: Path, template: Path = TEMPLATE, git: bool = True) ->
     return added, skipped
 
 
+def _utf8_stdout() -> None:
+    """Windows consoles default to a legacy code page; force UTF-8 so non-ASCII output never crashes."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    _utf8_stdout()
     if argv and argv[0] in ("-h", "--help"):
         print(__doc__)
         return 0

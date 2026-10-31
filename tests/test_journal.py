@@ -44,10 +44,22 @@ class JournalTest(unittest.TestCase):
     def test_add_is_verbatim_and_appends(self):
         self.run_cli("add", "--date", "2026-01-05", "--time", "09:10", stdin=DICTATION)
         self.run_cli("add", "--date", "2026-01-05", "--time", "18:30", stdin="second thought")
-        text = (self.ws / "journal/2026/2026-01-05.md").read_text()
+        text = (self.ws / "journal/2026/2026-01-05.md").read_text(encoding="utf-8")
         self.assertIn("## 09:10\n\n" + DICTATION + "\n", text)
         self.assertIn("## 18:30\n\nsecond thought\n", text)
         self.assertLess(text.index("09:10"), text.index("18:30"))
+
+    def test_add_from_file_is_verbatim_and_deletes(self):
+        tricky = "line one\nENTRY\n'@ \"@ `$env:HOME` caf\u00e9 \u2014 \u201cquoted\u201d\n"
+        f = self.ws / "dictation.txt"
+        f.write_bytes(("\ufeff" + tricky).encode("utf-8"))  # BOM, as Windows Notepad writes it
+        code, out = self.run_cli("add", "--date", "2026-01-07", "--time", "07:00", "--file", str(f), "--delete")
+        self.assertEqual(code, 0)
+        self.assertFalse(f.exists())
+        raw = (self.ws / "journal/2026/2026-01-07.md").read_bytes().decode("utf-8")
+        self.assertIn("## 07:00\n\n" + tricky, raw)
+        self.assertNotIn("\r", raw)
+        self.assertNotIn("\ufeff", raw)
 
     def test_empty_add_refused(self):
         with self.assertRaises(SystemExit):
@@ -57,7 +69,7 @@ class JournalTest(unittest.TestCase):
         self.run_cli("add", "--date", "2026-01-05", "--time", "09:10", stdin=DICTATION)
         self.run_cli("tag", "--date", "2026-01-05", "--themes", "meetings,leadership", "--people", "cto")
         self.run_cli("tag", "--date", "2026-01-05", "--themes", "meetings,focus")
-        text = (self.ws / "journal/2026/2026-01-05.md").read_text()
+        text = (self.ws / "journal/2026/2026-01-05.md").read_text(encoding="utf-8")
         meta, body = jr.read_frontmatter(text)
         self.assertEqual(meta["themes"], ["meetings", "leadership", "focus"])
         self.assertEqual(meta["people"], ["cto"])
@@ -74,7 +86,7 @@ class JournalTest(unittest.TestCase):
 
     def test_candidates_filter(self):
         c = self.ws / "journal/candidates.md"
-        c.write_text(c.read_text().replace(
+        c.write_text(c.read_text(encoding="utf-8").replace(
             "|---|---|---|---|---|",
             "|---|---|---|---|---|\n| 2026-01-05 | \"80% aligning\" | [e](2026/2026-01-05.md) | meetings | open |\n"
             "| 2026-01-06 | \"meh\" | [e](2026/2026-01-06.md) | misc | out (too thin) |"))
