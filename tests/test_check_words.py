@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "skills" / "writing-coach" / "scripts"))
 import check_words as cw  # noqa: E402
 
 GLUE = cw.load_glue()
@@ -96,6 +96,19 @@ class CheckWordsTest(unittest.TestCase):
             self.assertEqual(cw.main([f, "--section", "Text"]), 0)
             self.assertEqual(cw.main([f]), 1)
             self.assertEqual(cw.main([f, "--section", "Missing"]), 2)
+
+    def test_sources_only_verifies_raw_against_journal(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            entry = d / "2026-01-05.md"
+            entry.write_text("---\nthemes: [work]\n---\n\n## 09:10\nso today i realised meetings are basically where focus goes to die\n")
+            draft = d / "drafts" / "focus"
+            draft.mkdir(parents=True)
+            (draft / "raw.md").write_text("<!-- from journal -->\nso today i realised meetings are basically where focus goes to die\n")
+            self.assertEqual(cw.main([str(draft / "raw.md"), "--sources-only", "--source", str(entry)]), 0)
+            (draft / "raw.md").write_text("Today I realised meetings are where concentration goes to die.\n")
+            self.assertEqual(cw.main([str(draft / "raw.md"), "--sources-only", "--source", str(entry)]), 1)
+            self.assertEqual(cw.main([str(draft / "raw.md"), "--sources-only"]), 2)
 
     def test_cli_exit_codes(self):
         with tempfile.TemporaryDirectory() as d:

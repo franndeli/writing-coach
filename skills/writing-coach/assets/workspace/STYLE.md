@@ -3,7 +3,7 @@
 > **Not generated yet.** Add 10–20 samples to `samples/linkedin/` and `samples/blog/`, then run `/bootstrap-style`.
 >
 > This file **describes** how I write. It's evidence-based (every claim cites a sample) and descriptive, not
-> aspirational. It changes only through approved diffs (see `AGENTS.md`, rule 5). Git history shows how it has evolved.
+> aspirational. It changes only through approved diffs (see the writing-coach rules, rule 5). Git history shows how it has evolved.
 
 ## Voice & tone
 

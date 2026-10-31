@@ -2,3 +2,11 @@
 __pycache__/
 *.pyc
 .pi/sessions/
+.pi/context/
+
+# Safety net: personal writing never belongs in the public tool repo.
+# Your data lives in your private workspace (e.g. ~/writing), never here.
+skills/writing-coach/assets/workspace/samples/**/*.md
+skills/writing-coach/assets/workspace/drafts/*/
+skills/writing-coach/assets/workspace/feedback/posts/*.md
+skills/writing-coach/assets/workspace/journal/[0-9]*/

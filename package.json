@@ -1,0 +1,31 @@
+{
+  "name": "writing-coach",
+  "version": "0.1.0",
+  "description": "An AI writing coach that restructures your ideas into LinkedIn posts and blog articles. It changes the structure, never your words. Includes a voice-dictated journal it mines critically for post ideas.",
+  "license": "MIT",
+  "author": "Francisco José Delicado González",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/franndeli/writing-coach.git"
+  },
+  "keywords": [
+    "pi-package",
+    "agent-skills",
+    "writing",
+    "linkedin",
+    "blogging",
+    "journal",
+    "claude-code",
+    "codex"
+  ],
+  "files": [
+    "skills/",
+    "prompts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "skills": ["./skills"],
+    "prompts": ["./prompts/*.md"]
+  }
+}

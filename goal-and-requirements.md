@@ -7,53 +7,78 @@ status: draft
 
 # Writing Coach
 
-An AI coach that restructures my ideas into stronger LinkedIn posts and blog articles. It changes the structure, never the words.
+An open-source AI coach that restructures a writer's ideas into stronger LinkedIn posts and blog articles. It changes the structure, never the words. It also keeps a voice-dictated journal and mines it critically for post ideas.
 
 ## Overview
 
-A private Git repo of Markdown files that an agentic CLI (Pi) works on. I dump raw ideas. The agent
-interviews me, challenges weak arguments, and proposes a better *structure* built only from my own
-sentences. Accepted and rejected suggestions are logged, and over time they refine a written profile of
-how I write.
+A portable Agent Skill (Markdown rules and workflows plus dependency-free Python scripts) that works in any
+skills-capable coding agent: Claude Code, Codex, Cursor, Pi, and others. The writer dictates their days and ideas.
+The coach saves them verbatim, rules post ideas in or out against the writer's goals, interviews them, challenges
+weak arguments, and proposes a better *structure* built only from their own sentences. Accepted and rejected
+suggestions refine a written profile of how they write.
 
 ## Problem
 
-General-purpose AI rewriting makes my posts sound like AI. I want help with argument and structure: what
-to lead with, what to cut, where the logic is thin. But I want every published word to be mine.
+General-purpose AI rewriting makes posts sound like AI. Writers want help with what to post, what to lead with,
+what to cut, and where the logic is thin, while every published word stays theirs. Good material also sits unused
+in daily experience because nobody records it or checks it against what the writer actually wants to say.
 
 ## Principles
 
-- **The words are always mine.** The agent can reorder, cut, split, merge, and promote my sentences, and
-  it can use a small whitelist of grammatical glue. Anything else it needs becomes a `[GAP: …]` question
-  that I answer in my own words. A checker script verifies this mechanically. It is not left to the
-  model's discipline.
-- **Style is separate from coaching.** `STYLE.md` describes how I write. `AGENTS.md` describes how the agent
-  behaves. Either can change without touching the other.
-- **Style is descriptive, not prescriptive.** The profile records how I write today, including phrases I'd
-  never use, and it may evolve. All samples count equally; older posts still sound like me.
-- **Post feedback ≠ preference.** Every feedback entry is scoped `post` or `preference`. Something only
-  becomes a `STYLE.md` rule after repeated consistent decisions or an explicit "always/never" from me, and
-  only through a diff I approve.
-- **Raw drafts are immutable.** The agent never edits `raw.md`. Git diffs show exactly what it did.
+- **The words are always the writer's.** The coach can reorder, cut, split, merge, and promote their sentences,
+  and it can use a small whitelist of grammatical glue. Anything else becomes a `[GAP: …]` question. `check_words.py`
+  verifies this mechanically. It is not left to the model's discipline.
+- **The tool is public, the workspace is private.** The repo holds only the skill. Each writer's data (style, goals,
+  samples, drafts, feedback, journal) lives in a separate private workspace that the tool never commits or publishes.
+  A test keeps the bundled workspace template free of personal content.
+- **Style is separate from coaching.** `STYLE.md` describes how the writer writes. The skill's `rules.md` (plus personal
+  overrides in the workspace `AGENTS.md`) describes how the coach behaves. Either can change without touching the other.
+- **Style is descriptive, not prescriptive.** The profile records how the writer writes, including phrases they'd
+  never use. All samples count equally; older posts still represent the writer.
+- **Post feedback ≠ preference.** Every feedback entry is scoped `post` or `preference`. Something only becomes a
+  `STYLE.md` rule after 3 consistent decisions or an explicit "always/never", and only through an approved diff.
+- **A critical filter, not an idea machine.** The journal is captured silently. Only when the writer asks does the
+  review rule candidates IN (strict criteria, ~3 at most) or OUT. "Nothing worth posting" is an expected answer, and
+  the coach never pushes to post more.
+- **Raw text is immutable.** The coach never edits a draft's `raw.md` or a journal entry's body. Journal capture is
+  append-only and verbatim, with no cleanup of dictation. Promoted drafts are verified verbatim against the journal.
+- **Compress when capturing, not when searching.** Journal memory is layered: verbatim entries, frontmatter tags,
+  a candidates list of short quotes, and monthly digests the coach writes (internal, never quoted in posts). Reviews
+  read the small layers and open specific entries with text search. No vector database or embeddings: at about 600
+  tokens a day, layered Markdown plus grep holds up, and any future index must be rebuildable from the Markdown.
 
 ## Capabilities
 
+- **Init**: create or complete a private workspace from the template, without ever overwriting existing files.
+- **Goals**: interview the writer into `GOALS.md` (why they post, audience, topics they post about and never post about, per-platform cadence).
+- **Capture**: save a dictation verbatim to the day's journal entry, tag its themes, and quietly note candidate quotes.
+- **Review journal**: on request, rule candidates and recurring themes IN or OUT against `GOALS.md`, with verbatim quotes and reasons.
+- **Promote**: turn an IN candidate into a draft whose `raw.md` holds verbatim journal passages.
 - **Bootstrap**: analyze `samples/` and generate `STYLE.md`, citing examples.
-- **Interview**: ask probing questions so that I supply missing material in my own words.
-- **Restructure**: propose a LinkedIn and/or blog structure from `raw.md` plus my interview answers, with `[GAP]`s.
+- **Interview**: ask probing questions so that the writer supplies missing material in their own words.
+- **Restructure**: propose a LinkedIn or blog structure from the writer's words, with `[GAP]`s.
 - **Challenge**: critique arguments and structure, explaining each suggestion.
-- **Verify**: `tools/check_words.py` flags any word sequence in a final text that I didn't write.
+- **Verify**: `check_words.py` flags any word sequence the writer didn't write.
 - **Learn**: log accept/reject decisions with scope, and propose `STYLE.md` updates from accumulated preferences.
 - **Publish**: copy approved finals into `samples/` as new style evidence.
 
 ## Non-Goals
 
-- No vector database, embeddings, orchestration framework, fine-tuning, or standalone app.
-- No ghost-writing: the agent never produces publishable prose of its own.
-- No auto-posting to LinkedIn or the blog.
+- No ghost-writing: the coach never produces publishable prose of its own.
+- No auto-posting to LinkedIn or a blog.
+- No standalone app, orchestration framework, or fine-tuning. It runs inside existing coding agents.
+- No hosted service: nothing leaves the writer's machine except what their chosen model provider reads.
 
 ## Tech Notes
 
-Markdown and Git, private repo. Pi is the agent: a project skill in `.agents/skills/writing-coach/`, prompt
-commands in `.pi/prompts/`, and `AGENTS.md` loaded automatically. The checker is dependency-free Python 3.
-Everything stays portable across AI providers.
+- **Distribution**: `skills/writing-coach/` follows the Agent Skills format (`SKILL.md` router, `references/`,
+  `scripts/`, `assets/workspace/`). Install with `npx skills add franndeli/writing-coach` (any agent), `pi install
+  git:github.com/franndeli/writing-coach` (adds the `prompts/` slash commands via the `pi` key in `package.json`),
+  or a manual copy.
+- **Workspace**: found by its `.writing-coach` marker. Its `AGENTS.md` (plus a `CLAUDE.md` that imports it) tells
+  any agent to load the skill. Created by `scripts/init_workspace.py`, default `~/writing`, local git.
+- **Scripts**: Python 3 with no dependencies. `check_words.py` (verbatim-run plus clause matching, glue whitelist,
+  `allow.txt`, `--section`, `--sources-only`), `journal.py` (append-only `add`, `tag`, `themes`, `candidates`),
+  `init_workspace.py`.
+- Pi slash commands never take a dictation as an argument, because Pi's shell-like argument parsing would strip quotes and apostrophes.
+- MIT licensed. Tests: `python3 -m unittest discover -s tests`.

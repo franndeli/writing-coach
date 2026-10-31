@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Check that a text uses only my words.
 
-Usage:
-    python3 tools/check_words.py drafts/<slug>/final-linkedin.md [--draft DIR] [--source FILE ...]
+Usage (from your workspace; <skill> is where the writing-coach skill is installed):
+    python3 <skill>/scripts/check_words.py drafts/<slug>/final-linkedin.md [--draft DIR] [--source FILE ...]
 
 The draft directory defaults to the folder that contains the checked file. Text counts as mine if it
 comes from:
@@ -10,10 +10,10 @@ comes from:
   - interview.md  (everything except blockquote lines, which are the agent's questions, and headings)
   - brief.md      (everything except headings)
   - allow.txt     (phrases I approved; '#' comment lines are ignored)
-  - any extra --source files
+  - any extra --source files (with --sources-only, ONLY these, e.g. to check raw.md against journal entries)
 
 A word in the checked text is covered when one of these holds:
-  * it's a glue word (tools/glue_words.txt);
+  * it's a glue word (glue_words.txt next to this script, or the workspace's own glue_words.txt);
   * it sits inside a run of >= MIN_RUN consecutive words that appears verbatim in my text;
   * it sits inside a shorter verbatim run that has >= 2 non-glue words;
   * it is (or forms with glue around it) a complete clause of my text, e.g. "Honestly." or "Why?"
@@ -29,8 +29,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-GLUE_FILE = ROOT / "tools" / "glue_words.txt"
+GLUE_FILE = Path(__file__).resolve().parent / "glue_words.txt"
 MIN_RUN = 3
 
 WORD_RE = re.compile(r"[^\W_]+(?:'[^\W_]+)*", re.UNICODE)
@@ -215,6 +214,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("file", type=Path, help="text to check, e.g. drafts/<slug>/final-linkedin.md")
     ap.add_argument("--draft", type=Path, help="draft dir with raw.md etc. (default: the file's folder)")
     ap.add_argument("--source", type=Path, action="append", default=[], help="extra source file(s) of my words")
+    ap.add_argument("--sources-only", action="store_true", help="ignore the draft folder; use only --source files (e.g. to verify raw.md against the journal)")
+    ap.add_argument("--glue", type=Path, help="glue-word list (default: ./glue_words.txt if present, else the bundled one)")
     ap.add_argument("--section", help="only check the markdown section with this heading, e.g. Text")
     ap.add_argument("--min-run", type=int, default=MIN_RUN, help=f"verbatim run length that always counts (default {MIN_RUN})")
     args = ap.parse_args(argv)
@@ -222,12 +223,16 @@ def main(argv: list[str] | None = None) -> int:
     if not args.file.exists():
         print(f"error: {args.file} not found", file=sys.stderr)
         return 2
-    draft_dir = args.draft or args.file.parent
-    if not (draft_dir / "raw.md").exists() and not args.source:
+    draft_dir = None if args.sources_only else (args.draft or args.file.parent)
+    if args.sources_only and not args.source:
+        print("error: --sources-only needs at least one --source", file=sys.stderr)
+        return 2
+    if draft_dir is not None and not (draft_dir / "raw.md").exists() and not args.source:
         print(f"error: no raw.md in {draft_dir} and no --source given", file=sys.stderr)
         return 2
 
-    glue = load_glue()
+    glue_file = args.glue or (Path("glue_words.txt") if Path("glue_words.txt").exists() else GLUE_FILE)
+    glue = load_glue(glue_file)
     src = build_source(collect_sources(draft_dir, args.source), glue)
     text = args.file.read_text(encoding="utf-8")
     if args.section:
