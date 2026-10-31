@@ -1,6 +1,6 @@
 {
   "name": "writing-coach",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An AI writing coach that restructures your ideas into LinkedIn posts and blog articles. It changes the structure, never your words. Includes a voice-dictated journal it mines critically for post ideas.",
   "license": "MIT",
   "author": "Francisco José Delicado González",

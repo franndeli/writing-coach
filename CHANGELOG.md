@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-31
+
+### Changed
+- README: npm and Pi package badges; Pi install now uses `pi install npm:writing-coach`.
+- The npm package excludes Python cache files and runs the test suite before publishing.
+
 ## [0.1.0] - 2026-10-31
 
 First public release.
@@ -23,4 +29,5 @@ First public release.
 - **Worked example** of a fictional writer covering the whole loop, kept honest by tests.
 - Windows, macOS and Linux support, tested on Python 3.9 and 3.13.
 
+[0.1.1]: https://github.com/franndeli/writing-coach/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/franndeli/writing-coach/releases/tag/v0.1.0

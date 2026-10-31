@@ -4,7 +4,7 @@ description: Writing coach that restructures a writer's own words into LinkedIn 
 license: MIT
 compatibility: Requires Python 3.9+ (no dependencies) and an agent that can read files and run shell commands.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   repository: https://github.com/franndeli/writing-coach
 ---
 
