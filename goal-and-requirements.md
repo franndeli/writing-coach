@@ -2,7 +2,7 @@
 id: writing-coach
 type: goal-and-requirements
 title: Writing Coach
-status: draft
+status: active
 ---
 
 # Writing Coach
